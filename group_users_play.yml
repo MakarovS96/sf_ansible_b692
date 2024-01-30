@@ -1,0 +1,35 @@
+---
+- name: Create group and users
+  hosts: test
+  become: true
+  vars:
+    users: [user2, user3]
+  tasks:
+    - name: Create group
+      ansible.builtin.group:
+        name: superusers
+        state: present
+
+    - name: Grant rights to group
+      ansible.builtin.lineinfile:
+        path: '/etc/sudoers'
+        state: present
+        regexp: '^%superusers ALL='
+        line: '%superusers ALL=(ALL) NOPASSWD:ALL'
+        validate: /usr/sbin/visudo -cf %s
+
+    - name: Create users
+      ansible.builtin.user:
+        name: '{{ item }}'
+        state: present
+        group: superusers
+        shell: /bin/bash
+        create_home: true
+      with_items: '{{ users }}'
+
+    - name: Add ssh keys to users
+      ansible.posix.authorized_key:
+        user: '{{ item }}'
+        key: '{{ lookup("file", "vault/ssh_key.pub") }}'
+        state: present
+      with_items: '{{ users }}'

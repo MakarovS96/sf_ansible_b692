@@ -1,0 +1,34 @@
+---
+- name: Insall nginx
+  ansible.builtin.apt:
+    name:
+      - nginx
+    state: present
+    update_cache: true
+
+- name: Install php-fpm
+  ansible.builtin.apt:
+    name:
+      - php8.1-fpm
+    state: present
+
+- name: Check site directory
+  ansible.builtin.file:
+    path: '/opt/nginx/ansible'
+    state: directory
+    mode: '755'
+
+- name: Copy php file to site directory
+  ansible.builtin.copy:
+    src: 'opt/nginx/ansible/index.php'
+    dest: '/opt/nginx/ansible'
+    mode: '644'
+
+- name: Copy nginx site config
+  ansible.builtin.copy:
+    src: 'etc/nginx/sites-available/default'
+    dest: '/etc/nginx/sites-available/default'
+    force: true
+    mode: '644'
+  notify:
+    - Restart nginx

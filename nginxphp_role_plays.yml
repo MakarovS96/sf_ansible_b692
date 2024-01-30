@@ -1,0 +1,6 @@
+---
+- name: Run nginxphp role
+  hosts: test
+  become: true
+  roles:
+    - role: 'roles/nginxphp'

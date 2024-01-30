@@ -1,0 +1,6 @@
+---
+- name: Run dnsmasq role
+  hosts: test
+  become: true
+  roles:
+    - role: 'roles/dnsmasq'
